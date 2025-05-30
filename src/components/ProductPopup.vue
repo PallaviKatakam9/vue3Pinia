@@ -1,17 +1,19 @@
 <script setup>
 import { BModal } from "bootstrap-vue-next";
 import { defineEmits, defineProps, ref, watch, computed } from "vue";
-import { useStore } from "vuex";
-
 import ProductCard from "@/components/ProductCard.vue";
 
-const store = useStore();
+import { storeToRefs } from 'pinia'
+import { useCartStore } from '@/store/cartPinia'
+
+const cartStore = useCartStore()
+const { cartProducts } = storeToRefs(cartStore)
 
 const props = defineProps(["isOpen", "popupProduct"]);
 const emit = defineEmits(["update:isOpen"]);
 
 const enrichedProduct = computed(() => {
-  const cartItem = store.state.cart.cartProducts.find(
+  const cartItem = cartProducts.value.find(
     (cart) => cart.id === props.popupProduct.id
   );
 

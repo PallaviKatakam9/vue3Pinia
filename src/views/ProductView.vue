@@ -24,12 +24,31 @@
 
 <script setup>
   import { ref, watchEffect, watch, computed } from 'vue';
-  import { useStore } from 'vuex';
+  import { storeToRefs } from 'pinia'
+  import { useCartStore } from '@/store/cartPinia'
+  import { useProductStore } from '@/store/productPinia'
   import ProductFilter from '@/components/ProductFilter.vue';
   import ProductsGrid from '@/components/ProductsGrid.vue';
   import Loader from '@/components/Loader.vue'
   import { BButton, BCard, BCardText, BCol, BContainer, BPagination, BRow } from 'bootstrap-vue-next';
-  const store = useStore()
+
+  const cartStore = useCartStore()
+  const { cartProducts } = storeToRefs(cartStore)
+
+  const productStore = useProductStore()
+
+  const {
+    pageProducts,
+    filterProducts,
+    totalFilterProducts,
+    totalProducts
+  } = storeToRefs(productStore)
+
+  const {
+    getProducts: getPageProducts,
+    getSearchProducts: getSearchPageProducts,
+    getProductsByCategory: productsByCategory
+  } = productStore 
 
   let filteredProducts = ref([])
   const perPage = ref(12)
@@ -43,7 +62,7 @@
 
   const displayedProducts = computed(() => {
     const enrichedProducts = filteredProducts.value.map(product => {
-      const cartItem = store.state.cart.cartProducts.find(c => c.id === product.id)
+      const cartItem = cartProducts.value.find(c => c.id === product.id)
       return {
         ...product,
         cartQuantity: cartItem ? cartItem.cartQuantity : 0
@@ -101,29 +120,31 @@
     }
   }, {immediate:true})
 
-
   async function getProducts(){
     showLoader.value = true
-    await store.dispatch('getProducts',currentPage.value-1)
-    filteredProducts.value = store.state.product.pageProducts
-    rows.value = store.state.product.totalProducts
+    await getPageProducts(currentPage.value-1);
+    filteredProducts.value = pageProducts.value
+    rows.value = totalProducts.value
+    showLoader.value = false
   }
 
   async function getSearchProducts(searchText){
     showLoader.value = true
     filterClick.value = true;
-    await store.dispatch('getSearchProducts',[searchText,currentPage.value-1])
-    filteredProducts.value = store.state.product.filterProducts,
-    rows.value = store.state.product.totalFilterProducts
+    await getSearchPageProducts(searchText,currentPage.value-1)
+    filteredProducts.value = filterProducts.value
+    rows.value = totalFilterProducts.value
     filterClick.value = false;
+    showLoader.value = false
   }
 
   async function getProductsByCategory(category){
     showLoader.value = true
     showPagination.value = false
-    await store.dispatch('getProductsByCategory',category.value)
-    filteredProducts.value = store.state.product.filterProducts,
-    rows.value = store.state.product.totalFilterProducts
+    await productsByCategory(category.value)
+    filteredProducts.value = filterProducts.value,
+    rows.value = totalFilterProducts.value
+    showLoader.value = false
   }
 
 </script>
