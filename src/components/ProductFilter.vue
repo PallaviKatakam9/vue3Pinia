@@ -1,11 +1,13 @@
 <script setup>
     import { computed, ref, watchEffect, watch, defineEmits, defineExpose } from 'vue';
-    import { useStore } from 'vuex';
+    import { storeToRefs } from 'pinia'
+    import { useProductStore } from '@/store/productPinia'
     import Multiselect from '@vueform/multiselect'
     import '@vueform/multiselect/themes/default.css'
     import { BButton, BInputGroup, BFormInput } from 'bootstrap-vue-next';
-  
-    const store = useStore()
+
+    const productStore = useProductStore()
+    const {categories : allCategories} = storeToRefs(productStore)
     const selectedCategory = ref('')
     const selectedSort = ref('')
     const searchText = ref('')
@@ -20,7 +22,7 @@
         }
     ]
     const categories = computed(() =>
-        store.state.product.categories?.map(cat => ({
+        allCategories.value.map(cat => ({
             label: cat.name,
             value: cat.slug
         })) || []
@@ -29,9 +31,9 @@
     const emit = defineEmits(['search', 'filterSearch'])
     defineExpose({searchText,selectedCategory,selectedSort})
 
-    watchEffect(() => {
+    watchEffect(async() => {
         if (categories.value.length === 0) {
-            store.dispatch('getCategories')
+            await productStore.getCategories()
         }
     })
 

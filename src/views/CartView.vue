@@ -1,21 +1,24 @@
 <script setup>
-  import { computed } from 'vue';
-  import { useStore } from 'vuex';
-  import ProductsGrid from '@/components/ProductsGrid.vue';
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useCartStore } from "@/store/cartPinia";
+import ProductsGrid from "@/components/ProductsGrid.vue";
 
-  const store = useStore()
-  const cartProducts = computed(() => store.state.cart.cartProducts)
+const cartStore = useCartStore();
 
-  const totalCartPrice = computed(() => {
-    return store.state.cart.cartProducts.reduce((sum, item) => {
-      return sum + item.price * item.cartQuantity
-    }, 0).toFixed(2)
-  })
+const { cartProducts: allCartProducts } = storeToRefs(cartStore);
+
+const totalCartPrice = computed(() => {
+  return allCartProducts.value.reduce((sum, item) => {
+    return sum + item.price * item.cartQuantity
+  }, 0).toFixed(2)
+})
+
 </script>
 
 <template>
   <main>
-    <ProductsGrid :displayedProducts="cartProducts">
+    <ProductsGrid :displayedProducts="allCartProducts">
       <template #totalPrice></template>
     </ProductsGrid>
 

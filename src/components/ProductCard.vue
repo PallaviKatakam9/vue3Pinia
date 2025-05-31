@@ -44,12 +44,11 @@
     BCard,
     BCardText
     } from "bootstrap-vue-next";
-    import ProductPopup from '@/components/ProductPopup.vue'
-
     import { defineProps, useSlots, defineExpose, ref, defineEmits } from 'vue';
-    import { useStore } from 'vuex';
+    import ProductPopup from '@/components/ProductPopup.vue'
+    import { useCartStore } from '@/store/cartPinia'
 
-    const store = useStore()
+    const { addToCart, removeFromCart } = useCartStore()
     const slots = useSlots()
     const props = defineProps({
         product: Object,
@@ -58,18 +57,10 @@
             default: false,
         }
     })
+
     const emit = defineEmits(['open-popup'])
 
     function popupHandler(product){
         emit('open-popup', product)
     }
-
-    function addToCart(product){
-        store.commit('ADD_TO_CART', product)
-    }
-
-    function removeFromCart(product){
-        store.commit('REMOVE_FROM_CART', product)
-    }
-
 </script>
