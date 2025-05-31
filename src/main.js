@@ -8,7 +8,6 @@ import { createApp } from 'vue'
 import Vuex from 'vuex'
 import App from './App.vue'
 import router from './router'
-import store from './store'
 import { createPinia } from 'pinia'
 
 const pinia = createPinia()
@@ -19,4 +18,4 @@ app.use(router)
 app.use(Vuex)
 app.use(pinia)
 
-app.use(store).mount('#app')
+app.mount('#app')
